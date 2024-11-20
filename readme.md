@@ -2,6 +2,12 @@
 
 Welcome to **PyMacro**, a flexible macro scripting system! This documentation covers all supported commands and their usage.
 
+You can find a example script loader at **scriptloader.py**
+
+Created by [Gabriezv1233](https://github.com/gabrielzv1233)
+
+Documentation by our saviour ChatGPT
+
 ---
 
 ## Table of Contents
