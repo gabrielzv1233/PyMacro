@@ -7,92 +7,17 @@ import re
 
 variables = {}
 
-pyautogui_key_mapping = {
-    keyboard.Key.alt: 'alt',
-    keyboard.Key.alt_l: 'altleft',
-    keyboard.Key.alt_gr: 'altright',
-    keyboard.Key.backspace: 'backspace',
-    keyboard.Key.caps_lock: 'capslock',
-    keyboard.Key.cmd: 'win',
-    keyboard.Key.cmd_l: 'winleft',
-    keyboard.Key.cmd_r: 'winright',
-    keyboard.Key.ctrl: 'ctrl',
-    keyboard.Key.ctrl_l: 'ctrlleft',
-    keyboard.Key.ctrl_r: 'ctrlright',
-    keyboard.Key.delete: 'delete',
-    keyboard.Key.down: 'down',
-    keyboard.Key.end: 'end',
-    keyboard.Key.enter: 'enter',
-    keyboard.Key.esc: 'esc',
-    keyboard.Key.f1: 'f1',
-    keyboard.Key.f2: 'f2',
-    keyboard.Key.f3: 'f3',
-    keyboard.Key.f4: 'f4',
-    keyboard.Key.f5: 'f5',
-    keyboard.Key.f6: 'f6',
-    keyboard.Key.f7: 'f7',
-    keyboard.Key.f8: 'f8',
-    keyboard.Key.f9: 'f9',
-    keyboard.Key.f10: 'f10',
-    keyboard.Key.f11: 'f11',
-    keyboard.Key.f12: 'f12',
-    keyboard.Key.home: 'home',
-    keyboard.Key.insert: 'insert',
-    keyboard.Key.left: 'left',
-    keyboard.Key.page_down: 'pagedown',
-    keyboard.Key.page_up: 'pageup',
-    keyboard.Key.pause: 'pause',
-    keyboard.Key.right: 'right',
-    keyboard.Key.scroll_lock: 'scrolllock',
-    keyboard.Key.shift: 'shift',
-    keyboard.Key.shift_l: 'shiftleft',
-    keyboard.Key.shift_r: 'shiftright',
-    keyboard.Key.space: 'space',
-    keyboard.Key.tab: 'tab',
-    keyboard.Key.up: 'up',
-    keyboard.Key.media_next: 'nexttrack',
-    keyboard.Key.media_play_pause: 'playpause',
-    keyboard.Key.media_previous: 'prevtrack',
-    keyboard.Key.media_volume_down: 'volumedown',
-    keyboard.Key.media_volume_mute: 'volumemute',
-    keyboard.Key.media_volume_up: 'volumeup',
-}
-
-# Add printable characters to the mapping
-for char in (
-    '\t', '\n', '\r', ' ', '!', '"', '#', '$', '%', '&', "'", '(',
-    ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5',
-    '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', '[', '\\',
-    ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '{', '|', '}', '~'
-):
-    pyautogui_key_mapping[keyboard.KeyCode.from_char(char)] = char
-
-def normalize_key(key):
-    """Normalize a key to its PyAutoGUI-compatible name."""
-    if key in pyautogui_key_mapping:
-        return pyautogui_key_mapping[key]
-    elif hasattr(key, 'char') and key.char:
-        return key.char.lower()
-    return None
-
 def wait_for_keys(key_combo):
-    """
-    Wait for a specific key or key combination to be pressed.
-
-    Args:
-        key_combo (str): Space-separated key combination to wait for (e.g., "ctrl j").
-    """
     key_combo = key_combo.lower().split()
     keys_pressed = set()
 
     def on_press(key):
         try:
-            normalized_key = normalize_key(key)
-            if normalized_key:
-                keys_pressed.add(normalized_key)
-            # Check if all keys in the combo are pressed
+            if hasattr(key, 'char') and key.char:
+                keys_pressed.add(key.char.lower())
+            elif hasattr(key, 'name') and key.name:
+                keys_pressed.add(key.name.lower())
+            
             if all(k in keys_pressed for k in key_combo):
                 print(f"Keys detected: {' '.join(key_combo)}")
                 return False
@@ -101,9 +26,10 @@ def wait_for_keys(key_combo):
 
     def on_release(key):
         try:
-            normalized_key = normalize_key(key)
-            if normalized_key:
-                keys_pressed.discard(normalized_key)
+            if hasattr(key, 'char') and key.char:
+                keys_pressed.discard(key.char.lower())
+            elif hasattr(key, 'name') and key.name:
+                keys_pressed.discard(key.name.lower())
         except Exception as e:
             print(f"Error in key listener: {e}")
 
