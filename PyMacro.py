@@ -19,10 +19,6 @@ def wait_for_keys(key_combo):
                 keys_pressed.add(key.name.lower())
             
             if all(k in keys_pressed for k in key_combo):
-<<<<<<< HEAD
-                print(f"Keys detected: {' '.join(key_combo)}")
-=======
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
                 return False
         except Exception as e:
             print(f"Error in key listener: {e}")
@@ -42,20 +38,6 @@ def wait_for_keys(key_combo):
 
 def f_resolve_expression_internal(expression):
     try:
-<<<<<<< HEAD
-        
-        expression = re.sub(r"\$\{([^}]+)\}", lambda m: str(variables.get(m.group(1), "")), expression)
-        expression = re.sub(r"\$\{~([^}]+)~\}", lambda m: str(os.getenv(m.group(1), "")), expression)
-
-        try:
-            return eval(expression)  
-        except:
-            pass  
-
-        return expression
-    except Exception as e:
-        raise ValueError(f"Invalid expression: {expression}. Error: {str(e)}")
-=======
         expression = re.sub(
             r"\$\{([^}]+)\}",
             lambda m: str(variables.get(m.group(1), "")),
@@ -95,7 +77,6 @@ def set_variable(var, value):
 def join_variables(*args):
     joined = " ".join(f_resolve_expression_internal(f"${{{arg}}}") for arg in args)
     return joined
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
 
 def f_parse_internal(command):
     try:
@@ -155,33 +136,15 @@ def f_parse_internal(command):
             if subcmd == "copy":
                 text = f_resolve_expression_internal(" ".join(parts[2:]))
                 pyperclip.copy(text)
-<<<<<<< HEAD
-            elif subcmd == "paste":
-                pyautogui.write(pyperclip.paste())
-=======
             elif subcmd == "paste-m":
                 pyautogui.write(pyperclip.paste())
             elif subcmd == "paste":
                 pyautogui.hotkey('ctrl', 'v')
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
             elif subcmd == "clear":
                 pyperclip.copy("")
             else:
                 raise ValueError(f"Invalid clip action: {subcmd}")
         
-<<<<<<< HEAD
-        elif cmd == "set":
-            varname = parts[1]
-            value = f_resolve_expression_internal(" ".join(parts[2:]))
-            variables[varname] = value
-        
-        elif cmd == "del":
-            varname = parts[1]
-            if varname.startswith("~") and varname.endswith("~"):  
-                os.environ.pop(varname[1:-1], None)
-            else:  
-                variables.pop(varname, None)
-=======
         if cmd == "set":
             var = parts[1]
             match = re.match(r"join\((.*?)\)", " ".join(parts[2:]))
@@ -202,7 +165,6 @@ def f_parse_internal(command):
                 os.system(f"setx {env_var} ''")
             else:
                 variables.pop(var, None)
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
         
         elif cmd == "write":
             if parts[1].startswith("user") or parts[1].startswith("sys"):
@@ -219,11 +181,7 @@ def f_parse_internal(command):
 
         
         elif cmd == "log":
-<<<<<<< HEAD
-            message = " ".join(parts[1:])
-=======
             message = f_resolve_expression_internal(" ".join(parts[1:]))
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
             print(message)
 
         
@@ -231,19 +189,6 @@ def f_parse_internal(command):
         print(f"Error processing command: {command}")
         print(f"Exception: {e}")
 
-<<<<<<< HEAD
-def macro(execstr, echo_errors=True):
-    try:
-        if execstr == None:
-            print("Input cannot be None")
-        elif execstr != None:
-            for command in execstr.split(";"):
-                f_parse_internal(command)
-    except Exception as e:
-        if echo_errors == True:
-            print(f"Error running macro:")
-            print(f"Exception: {e}")
-=======
 def parse_config_options(script):
     config = {
         "DisableAdminVarWarning": False,
@@ -303,4 +248,3 @@ def macro(execstr, echo_errors=True):
         if echo_errors:
             print(f"Error running macro:")
             print(f"Exception: {e}")
->>>>>>> 5ebf407 (changed alot and about to make a major change so this is a backup :))
