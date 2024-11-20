@@ -1,19 +1,20 @@
-# PyMacro Documentation
+# **PyMacro Documentation**
 
-Welcome to **PyMacro**, a flexible macro scripting system! This documentation covers all supported commands and their usage.
+Created by [Gabriezv1233](https://github.com/gabrielzv1233)  
 
-You can find a example script loader at **scriptloader.py**
+Welcome to **PyMacro**, a small and simple macro scripting system! This documentation covers all supported commands, configuration options, and usage.
 
-Created by [Gabriezv1233](https://github.com/gabrielzv1233)
+You can find an example script loader at **scriptloader.py**.
 
-Documentation by our saviour ChatGPT
+Documentation by our savior ChatGPT (slightly modified manually)
 
 ---
 
-## Table of Contents
+## **Table of Contents**
 
 1. [General Syntax](#general-syntax)
-2. [Command List](#command-list)
+2. [Configuration Options](#configuration-options)
+3. [Command List](#command-list)
     - [Cursor Control](#cursor-control)
     - [Key Press](#key-press)
     - [Hotkey Combination](#hotkey-combination)
@@ -26,20 +27,19 @@ Documentation by our saviour ChatGPT
     - [Environment Variable Management](#environment-variable-management)
     - [Continue](#continue)
     - [Log](#log)
-3. [Examples](#examples)
-4. [Error Handling](#error-handling)
+4. [Examples](#examples)
+5. [Error Handling](#error-handling)
 
 ---
 
-## General Syntax
+## **General Syntax**
 
-- Commands are separated by semicolons (`;`).
+- Commands are separated by semicolons (`;`) unless redefined by a configuration option.
 - Arguments are separated by spaces.
 - Variables can be defined and used in any command using `${var}`.
-- Environment variables are referenced using `${~envvar~}`.
+- Environment variables are referenced using `${~envvar~}` (user) or `${+envvar+}` (system).
 
-### Example
-
+### **Example**
 ```plaintext
 set x 100;
 cursor ${x} 200;
@@ -49,9 +49,59 @@ clip copy Hello World;
 
 ---
 
-## Command List
+## **Configuration Options**
 
-### Cursor Control
+Configuration options allow customization of how the macro script behaves. They must be defined at the start of the script and begin with `@`.
+
+### **Available Options**
+
+#### **1. `@DisableAdminVarWarning`**
+Disables warnings when the script attempts to modify system environment variables.
+
+**Example**:
+```plaintext
+@DisableAdminVarWarning
+```
+
+---
+
+#### **2. `@FuncSplit = "char(s)"`**
+Defines the character(s) used to split commands in the script. The default is `;`.
+
+- Use `"\n"` to split commands by newlines, treating each non-blank line as a command.
+- Use any custom character or string for splitting.
+
+**Example**:
+```plaintext
+@FuncSplit = "\n"
+set test1 Hello
+set test2 World
+log ${test1} ${test2}
+```
+
+---
+
+#### **3. `@CommentOverride = "char(s)"`**
+Defines the character(s) that mark the start of a comment. Text after the defined character(s) is ignored. The default is `None` (comments disabled).
+
+**Example**:
+```plaintext
+@CommentOverride = "//"
+set test1 Hello; // This is a comment
+log ${test1}; // Another comment
+```
+
+**Disable Comments**:
+```plaintext
+@CommentOverride = "None"
+set test1 Hello; # This will NOT be treated as a comment
+```
+
+---
+
+## **Command List**
+
+### **Cursor Control**
 
 Move the mouse cursor to specific screen coordinates.
 
@@ -64,14 +114,9 @@ cursor {x} {y};
 - `{x}`: Horizontal position in pixels.
 - `{y}`: Vertical position in pixels.
 
-**Example**:
-```plaintext
-cursor 500 300;
-```
-
 ---
 
-### Key Press
+### **Key Press**
 
 Simulate pressing or releasing a key.
 
@@ -80,21 +125,9 @@ Simulate pressing or releasing a key.
 key {key} [(press)/up/down];
 ```
 
-**Arguments**:
-- `{key}`: The key to press (e.g., `a`, `1`, `enter`).
-- `(press)` (default): Press and release the key.
-- `up`: Release the key.
-- `down`: Hold the key down.
-
-**Example**:
-```plaintext
-key a press;
-key enter up;
-```
-
 ---
 
-### Hotkey Combination
+### **Hotkey Combination**
 
 Simulate pressing multiple keys simultaneously.
 
@@ -103,17 +136,9 @@ Simulate pressing multiple keys simultaneously.
 hotkey {key1} {key2} ... {keyN};
 ```
 
-**Arguments**:
-- `{keyN}`: Keys to press in combination.
-
-**Example**:
-```plaintext
-hotkey f1 f2;
-```
-
 ---
 
-### Wait
+### **Wait**
 
 Pause the macro for a specified duration.
 
@@ -122,20 +147,9 @@ Pause the macro for a specified duration.
 wait {time} [(ms)/s/sec];
 ```
 
-**Arguments**:
-- `{time}`: Duration to wait.
-- `(ms)` (default): Time in milliseconds.
-- `(s/sec)`: Time in seconds.
-
-**Example**:
-```plaintext
-wait 100 ms;
-wait 2 s;
-```
-
 ---
 
-### Write Text
+### **Write Text**
 
 Type a string of text.
 
@@ -144,17 +158,9 @@ Type a string of text.
 write {text};
 ```
 
-**Arguments**:
-- `{text}`: The text to type.
-
-**Example**:
-```plaintext
-write Hello, World!;
-```
-
 ---
 
-### Mouse Buttons
+### **Mouse Buttons**
 
 Simulate mouse button actions.
 
@@ -163,20 +169,9 @@ Simulate mouse button actions.
 mb {button} [(press)/up/down];
 ```
 
-**Arguments**:
-- `{button}`: Button index (1=Left, 2=Right, 3=Middle, 4=X1, 5=X2).
-- `(press)` (default): Click the button.
-- `up`: Release the button.
-- `down`: Hold the button down.
-
-**Example**:
-```plaintext
-mb 1 press;
-```
-
 ---
 
-### Scrolling
+### **Scrolling**
 
 Simulate mouse wheel scrolling.
 
@@ -185,100 +180,93 @@ Simulate mouse wheel scrolling.
 scroll {amount};
 ```
 
-**Arguments**:
-- `{amount}`: Number of units to scroll (positive for up, negative for down).
+---
 
-**Example**:
+### **Clipboard Management**
+
+Perform operations with the clipboard, including copying, pasting, clearing content, and accessing the clipboard value as a variable.
+
+#### **Syntax**
 ```plaintext
-scroll -10;  # Scroll down
-scroll 20;   # Scroll up
+clip {copy/paste/paste-m/clear} {text};
 ```
+
+#### **Options**
+- **`copy`**: Copies the specified text to the clipboard.
+- **`paste`**: Pastes the current clipboard content.
+- **`paste-m`**: Retrieves the clipboard content and types it using the `write` function. Use this if `paste` does not work with `Ctrl + V` in your setup.
+- **`clear`**: Clears the clipboard content.
 
 ---
 
-### Clipboard Management
-
-Perform operations with the clipboard.
-
-**Syntax**:
-```plaintext
-clip {copy/paste/clear} {text};
-```
-
-**Arguments**:
-- `copy`: Copy the specified text to the clipboard.
-- `paste`: Paste the current clipboard content.
-- `clear`: Clear the clipboard.
-- `{text}`: (Required for `copy`) The text to copy.
-
-**Examples**:
-```plaintext
-clip copy Hello, World!;
-clip paste;
-clip clear;
-```
+#### **Using Clipboard Content as a Variable**
+You can access the current clipboard content directly using the special syntax `!{%clip%}`. This allows you to use the clipboard content in variables or commands.
 
 ---
 
-### Variable Management
+#### **Examples**
+
+1. **Basic Clipboard Operations**:
+   ```plaintext
+   clip copy Hello, World!;   // Copies "Hello, World!" to the clipboard
+   clip paste;               // Pastes the current clipboard content
+   clip clear;               // Clears the clipboard content
+   ```
+
+2. **Using `paste-m` for Compatibility**:
+   ```plaintext
+   clip paste-m;             // Types the clipboard content
+   ```
+
+3. **Accessing Clipboard Content as a Variable**:
+   ```plaintext
+   clip copy Clipboard Test!;      // Copies "Clipboard Test!" to the clipboard
+   set clipboardContent !{%clip%}; // Retrieves clipboard content into a variable
+   log Clipboard contains: ${clipboardContent};
+   ```
+
+---
+
+#### **Expected Outputs**
+
+- **Command**:
+  ```plaintext
+  clip copy Hello, Clipboard!;
+  set clipContent !{%clip%};
+  log ${clipContent};
+  ```
+- **Output**:
+  ```plaintext
+  Hello, Clipboard!
+  ```
+
+---
+
+### **Variable Management**
 
 Define, use, and delete variables.
 
-**Set a Variable**:
+**Syntax**:
 ```plaintext
 set {varname} {value};
-```
-
-- `{varname}`: Name of the variable.
-- `{value}`: Can include math, other variables (`${var}`), or environment variables (`${~envvar~}`).
-
-**Delete a Variable**:
-```plaintext
 del {varname};
 ```
 
-**Examples**:
-```plaintext
-set x 10 + 5;
-write The value is ${x};
-del x;
-```
-
 ---
 
-### Environment Variable Management
+### **Environment Variable Management**
 
 Retrieve, set, or delete environment variables.
 
-**Retrieve Environment Variable**:
+**Syntax**:
 ```plaintext
-${~envvar~};
-```
-
-**Set Environment Variable**:
-```plaintext
-write {user/sys} ~envvar~ {value};
-```
-
-- `user`: Set for the current user.
-- `sys`: Set system-wide.
-- `{value}`: Value to assign.
-
-**Delete Environment Variable**:
-```plaintext
-del ~envvar~;
-```
-
-**Examples**:
-```plaintext
-set path ${~PATH~};
-write user ~MY_ENV_VAR~ Hello;
-del ~MY_ENV_VAR~;
+set {~var~|+var+} {value};
+del {~var~|+var+};
 ```
 
 ---
 
-### Continue
+### **Continue**
 
 Pause the macro until a specific key or key combination is pressed.
 
@@ -287,19 +275,9 @@ Pause the macro until a specific key or key combination is pressed.
 continue {key};
 ```
 
-**Arguments**:
-- `{key}`: The key to wait for (e.g., `j`, `enter`, `f1`).
-
-**Examples**:
-```plaintext
-continue j;
-continue enter;
-continue f1;
-```
-
 ---
 
-### Log
+### **Log**
 
 Print a message to the console.
 
@@ -308,35 +286,59 @@ Print a message to the console.
 log {message};
 ```
 
-**Arguments**:
-- `{message}`: The text to log.
-
-**Examples**:
-```plaintext
-log Starting the macro!;
-log Current variable value: ${x};
-```
-
 ---
 
-## Examples
+## **Examples**
 
 **Example Script**:
 ```plaintext
-set x 100;
-log Starting macro execution;
-cursor ${x} 200;
-continue j;
-log Detected key, moving forward;
-clip copy Macro executed successfully!;
-clip paste;
+@FuncSplit = "\n"
+@CommentOverride = "//"
+
+// Define variables
+set text1 "PyMacro makes automation easy!"
+set text2 "Try it out and boost your productivity."
+set separator " | "
+set finalText join(text1, separator, text2)
+
+// Copy combined text to clipboard
+log Copying formatted text to clipboard...
+clip copy ${finalText}
+
+// Open notepad to output text
+hotkey win r // Opens the Run dialog for windows
+wait 500
+write notepad.exe
+key enter
+wait 1 s // Simulate time for loading notepad
+
+// Simulate pasting the text into a document
+log Pasting formatted text into the document.
+clip paste
+
+// Simulate adding a custom signature
+wait 500 ms
+write " - Powered by PyMacro"
+
+// Perform some scrolling for demonstration
+scroll -10 // Scroll down
+scroll 20  // Scroll up
+
+log Press ESC to close the script...
+continue esc
+log Exiting script. Goodbye!
+```
+
+**Output**:
+```plaintext
+Hello World
 ```
 
 ---
 
-## Error Handling
+## **Error Handling**
 
-Errors during command execution will output the command and the exception. Example:
+Errors during command execution output the command and exception details. Example:
 ```plaintext
 Error processing command: set x ${undefined_var} + 1
 Exception: Invalid expression: ${undefined_var}. Error: name 'undefined_var' is not defined
