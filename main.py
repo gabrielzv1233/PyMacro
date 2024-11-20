@@ -1,5 +1,5 @@
-import PyMacro
 from plyer import filechooser
+import PyMacro
 
 file_path = filechooser.open_file(filters=["*.pymacro", "*.txt"])
 

@@ -144,7 +144,7 @@ def f_parse_internal(command):
 
         
         elif cmd == "log":
-            message = " ".join(parts[1:])  # Combine the rest of the parts as the log message
+            message = " ".join(parts[1:])
             print(message)
 
         
