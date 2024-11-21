@@ -89,10 +89,6 @@ def f_set_variable_internal(var, value):
     else:
         variables[var] = value
 
-def f_join_variables_internal(*args):
-    joined = " ".join(f_resolve_expression_internal(f"${{{arg}}}") for arg in args)
-    return joined
-
 def f_parse_internal(command):
     try:
         parts = command.strip().split()
@@ -171,13 +167,8 @@ def f_parse_internal(command):
 
         elif cmd == "set":
             var = parts[1]
-            if parts[2].startswith("join(") and parts[2].endswith(")"):
-                join_content = command[command.index("join(") + 5 : command.rindex(")")]
-                args = [arg.strip() for arg in join_content.split(",")]
-                value = f_join_variables_internal(*args)
-            else:
-                value = f_resolve_expression_internal(" ".join(parts[2:]))
-            f_set_variable_internal(var, value)
+            value = f_resolve_expression_internal(" ".join(parts[2:]))
+            f_set_variable_internal(var, f_parse_wrapped_string_internal(value))
 
         elif cmd == "del":
             var = parts[1]
