@@ -288,19 +288,19 @@ log {message};
 @FuncSplit = "\n"
 @CommentOverride = "//"
 
-set text1 "Hello, Macro World!";
-set text2 "Powered by PyMacro.";
-set combinedText join(text1, text2);
+set text1 "Hello, Macro World!"
+set text2 "Powered by PyMacro."
+set combinedText join(text1, text2)
 
 // Simulate opening Notepad and typing text
-hotkey win r;
-wait 500 ms;
-write notepad;
-key enter;
-wait 1 s;
-write ${combinedText};
-key enter;
-write "Goodbye!";
+hotkey win r
+wait 500 ms
+write notepad
+key enter
+wait 1 s
+write ${combinedText}
+key enter
+write "Goodbye!"
 ```
 
 ---
