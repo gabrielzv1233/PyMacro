@@ -2,11 +2,11 @@
 
 Created by [Gabriezv1233](https://github.com/gabrielzv1233)  
 
-Welcome to **PyMacro**, a small and simple macro scripting system! This documentation covers all supported commands, configuration options, and usage.
+Welcome to **PyMacro**, a versatile and simple macro scripting system! This documentation covers all supported commands, configuration options, and usage.
 
 You can find an example script loader at **scriptloader.py**.
 
-Documentation by our savior ChatGPT (slightly modified manually)
+Documentation by our savior ChatGPT (enhanced manually).
 
 ---
 
@@ -38,14 +38,7 @@ Documentation by our savior ChatGPT (slightly modified manually)
 - Arguments are separated by spaces.
 - Variables can be defined and used in any command using `${var}`.
 - Environment variables are referenced using `${~envvar~}` (user) or `${+envvar+}` (system).
-
-### **Example**
-```plaintext
-set x 100;
-cursor ${x} 200;
-wait 1 s;
-clip copy Hello World;
-```
+- Clipboard content can be referenced as `!{%clip%}`.
 
 ---
 
@@ -74,9 +67,9 @@ Defines the character(s) used to split commands in the script. The default is `;
 **Example**:
 ```plaintext
 @FuncSplit = "\n"
-set test1 Hello
-set test2 World
-log ${test1} ${test2}
+set var1 Hello
+set var2 World
+log ${var1} ${var2}
 ```
 
 ---
@@ -87,14 +80,14 @@ Defines the character(s) that mark the start of a comment. Text after the define
 **Example**:
 ```plaintext
 @CommentOverride = "//"
-set test1 Hello; // This is a comment
-log ${test1}; // Another comment
+set var1 Hello; // This is a comment
+log ${var1}; // Another comment
 ```
 
 **Disable Comments**:
 ```plaintext
 @CommentOverride = "None"
-set test1 Hello; # This will NOT be treated as a comment
+set var1 Hello; # This will NOT be treated as a comment
 ```
 
 ---
@@ -111,8 +104,14 @@ cursor {x} {y};
 ```
 
 **Arguments**:
-- `{x}`: Horizontal position in pixels.
-- `{y}`: Vertical position in pixels.
+- `{x}`: Horizontal position in pixels. Supports math and variables.
+- `{y}`: Vertical position in pixels. Supports math and variables.
+
+**Examples**:
+```plaintext
+cursor 500 300;
+cursor ${x} + 50 ${y} - 100;
+```
 
 ---
 
@@ -145,6 +144,12 @@ Pause the macro for a specified duration.
 **Syntax**:
 ```plaintext
 wait {time} [(ms)/s/sec];
+```
+
+**Examples**:
+```plaintext
+wait 1000 ms;
+wait ${delay} * 2 s;
 ```
 
 ---
@@ -180,6 +185,15 @@ Simulate mouse wheel scrolling.
 scroll {amount};
 ```
 
+**Arguments**:
+- `{amount}`: Scroll units. Supports math and variables.
+
+**Examples**:
+```plaintext
+scroll -5;
+scroll ${scrollSpeed} * 10;
+```
+
 ---
 
 ### **Clipboard Management**
@@ -190,12 +204,6 @@ Perform operations with the clipboard, including copying, pasting, clearing cont
 ```plaintext
 clip {copy/paste/paste-m/clear} {text};
 ```
-
-#### **Options**
-- **`copy`**: Copies the specified text to the clipboard.
-- **`paste`**: Pastes the current clipboard content.
-- **`paste-m`**: Retrieves the clipboard content and types it using the `write` function. Use this if `paste` does not work with `Ctrl + V` in your setup.
-- **`clear`**: Clears the clipboard content.
 
 ---
 
@@ -208,37 +216,22 @@ You can access the current clipboard content directly using the special syntax `
 
 1. **Basic Clipboard Operations**:
    ```plaintext
-   clip copy Hello, World!;   // Copies "Hello, World!" to the clipboard
-   clip paste;               // Pastes the current clipboard content
-   clip clear;               // Clears the clipboard content
+   clip copy Hello, World!;
+   clip paste;
+   clip clear;
    ```
 
 2. **Using `paste-m` for Compatibility**:
    ```plaintext
-   clip paste-m;             // Types the clipboard content
+   clip paste-m;
    ```
 
 3. **Accessing Clipboard Content as a Variable**:
    ```plaintext
-   clip copy Clipboard Test!;      // Copies "Clipboard Test!" to the clipboard
-   set clipboardContent !{%clip%}; // Retrieves clipboard content into a variable
+   clip copy Clipboard Test!;
+   set clipboardContent !{%clip%};
    log Clipboard contains: ${clipboardContent};
    ```
-
----
-
-#### **Expected Outputs**
-
-- **Command**:
-  ```plaintext
-  clip copy Hello, Clipboard!;
-  set clipContent !{%clip%};
-  log ${clipContent};
-  ```
-- **Output**:
-  ```plaintext
-  Hello, Clipboard!
-  ```
 
 ---
 
@@ -295,43 +288,19 @@ log {message};
 @FuncSplit = "\n"
 @CommentOverride = "//"
 
-// Define variables
-set text1 "PyMacro makes automation easy!"
-set text2 "Try it out and boost your productivity."
-set separator " | "
-set finalText join(text1, separator, text2)
+set text1 "Hello, Macro World!";
+set text2 "Powered by PyMacro.";
+set combinedText join(text1, text2);
 
-// Copy combined text to clipboard
-log Copying formatted text to clipboard...
-clip copy ${finalText}
-
-// Open notepad to output text
-hotkey win r // Opens the Run dialog for windows
-wait 500
-write notepad.exe
-key enter
-wait 1 s // Simulate time for loading notepad
-
-// Simulate pasting the text into a document
-log Pasting formatted text into the document.
-clip paste
-
-// Simulate adding a custom signature
-wait 500 ms
-write " - Powered by PyMacro"
-
-// Perform some scrolling for demonstration
-scroll -10 // Scroll down
-scroll 20  // Scroll up
-
-log Press ESC to close the script...
-continue esc
-log Exiting script. Goodbye!
-```
-
-**Output**:
-```plaintext
-Hello World
+// Simulate opening Notepad and typing text
+hotkey win r;
+wait 500 ms;
+write notepad;
+key enter;
+wait 1 s;
+write ${combinedText};
+key enter;
+write "Goodbye!";
 ```
 
 ---

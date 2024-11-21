@@ -1,0 +1,36 @@
+{
+    "name": "pymacro",
+    "displayName": "PyMacro Language Support",
+    "description": "Syntax highlighting and configuration for PyMacro scripting.",
+    "version": "0.0.1",
+    "publisher": "Gabrielzv1233",
+    "engines": {
+      "vscode": "^1.50.0"
+    },
+    "categories": ["Programming Languages"],
+    "contributes": {
+      "languages": [
+        {
+          "id": "pymacro",
+          "aliases": ["PyMacro", "pymacro"],
+          "extensions": [".pymacro"],
+          "configuration": "./language-configuration.json"
+        }
+      ],
+      "grammars": [
+        {
+          "language": "pymacro",
+          "scopeName": "source.pymacro",
+          "path": "./syntaxes/pymacro.tmLanguage.json"
+        }
+      ],
+      "themes": [
+        {
+          "label": "PyMacro Theme",
+          "uiTheme": "vs-dark",
+          "path": "./themes/pymacro-color-theme.json"
+        }
+      ]
+    }
+  }
+  

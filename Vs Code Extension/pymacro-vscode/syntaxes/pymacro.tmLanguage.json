@@ -1,0 +1,96 @@
+{
+  "scopeName": "source.pymacro",
+  "fileTypes": ["pymacro"],
+  "name": "PyMacro",
+  "patterns": [
+    { "include": "#configs" },
+    { "include": "#commands" },
+    { "include": "#strings" },
+    { "include": "#variables" },
+    { "include": "#comments" }
+  ],
+  "repository": {
+    "configs": {
+      "patterns": [
+        {
+          "name": "keyword.control.config.pymacro",
+          "match": "^@([a-zA-Z]+)"
+        },
+        {
+          "name": "keyword.operator.assignment.pymacro",
+          "match": "="
+        },
+        {
+          "name": "string.quoted.config.pymacro",
+          "match": "\".*?\""
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "support.function.command.pymacro",
+          "match": "\\b(cursor|key|hotkey|wait|write|mb|scroll|clip|set|del|log|continue|join)\\b"
+        },
+        {
+          "name": "entity.name.argument.pymacro",
+          "match": "\\b(win|r|ms|sec|press|down|up|left|right|middle|x1|x2|[0-9]+)\\b"
+        },
+        {
+          "name": "keyword.argument.unit.pymacro",
+          "match": "\\b(ms|s|sec|seconds|milliseconds)\\b"
+        },
+        {
+          "name": "variable.argument.join.pymacro",
+          "begin": "\\(",
+          "end": "\\)",
+          "patterns": [
+            { "name": "variable.parameter.pymacro", "match": "\\$\\{[^}]+\\}" },
+            { "name": "string.quoted.join.pymacro", "match": "\".*?\"" }
+          ]
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.pymacro",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.pymacro", "match": "\\\\[\"']" }
+          ]
+        },
+        {
+          "name": "string.quoted.single.pymacro",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "name": "constant.character.escape.pymacro", "match": "\\\\[\"']" }
+          ]
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.parameter.pymacro",
+          "match": "\\$\\{[^}]+\\}"
+        },
+        {
+          "name": "variable.special.clipboard.pymacro",
+          "match": "!\\$\\{\\%clip\\%\\}"
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.pymacro",
+          "begin": "//",
+          "end": "$"
+        }
+      ]
+    }
+  }
+}

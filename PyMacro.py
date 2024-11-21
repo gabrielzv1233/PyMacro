@@ -7,7 +7,7 @@ import re
 
 variables = {}
 
-def wait_for_keys(key_combo):
+def f_wait_for_keys_internal(key_combo):
     key_combo = key_combo.lower().split()
     keys_pressed = set()
 
@@ -36,8 +36,28 @@ def wait_for_keys(key_combo):
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
 
+def f_evaluate_expression_internal(expression):
+    try:
+        resolved_expression = f_resolve_expression_internal(expression)
+        return eval(resolved_expression, {"__builtins__": None}, {})
+    except Exception as e:
+        raise ValueError(f"Error evaluating expression: {expression}. Error: {str(e)}")
+
+def f_parse_wrapped_string_internal(arg):
+    if arg.startswith('"') and arg.endswith('"'):
+        return re.sub(r'\\(["\'])', r'\1', arg[1:-1])
+    elif arg.startswith("'") and arg.endswith("'"):
+        return re.sub(r'\\(["\'])', r'\1', arg[1:-1])
+    return arg
+
 def f_resolve_expression_internal(expression):
     try:
+        expression = re.sub(
+            r"\!\$\{\%clip\%\}",
+            lambda m: pyperclip.paste(),
+            expression
+        )
+
         expression = re.sub(
             r"\$\{([^}]+)\}",
             lambda m: str(variables.get(m.group(1), "")),
@@ -56,25 +76,20 @@ def f_resolve_expression_internal(expression):
             expression
         )
 
-        expression = expression.replace("!{%clip%}", pyperclip.paste())
-
         return expression
     except Exception as e:
         raise ValueError(f"Error resolving expression: {expression}. Error: {str(e)}")
 
 
-def set_variable(var, value):
+def f_set_variable_internal(var, value):
     if var.startswith("~") and var.endswith("~"):
-        env_var = var[1:-1]
-        os.environ[env_var] = value
+        os.environ[var[1:-1]] = value
     elif var.startswith("+") and var.endswith("+"):
-        env_var = var[1:-1]
-        os.system(f"setx {env_var} {value}")
+        os.system(f"setx {var[1:-1]} {value}")
     else:
         variables[var] = value
 
-
-def join_variables(*args):
+def f_join_variables_internal(*args):
     joined = " ".join(f_resolve_expression_internal(f"${{{arg}}}") for arg in args)
     return joined
 
@@ -85,13 +100,17 @@ def f_parse_internal(command):
             return
 
         cmd = parts[0].lower()
-        
+
+        def resolve_args(args):
+            return [f_resolve_expression_internal(f_parse_wrapped_string_internal(arg)) for arg in args]
+
         if cmd == "cursor":
-            x, y = map(int, parts[1:3])
+            x = int(f_evaluate_expression_internal(parts[1]))
+            y = int(f_evaluate_expression_internal(parts[2]))
             pyautogui.moveTo(x, y)
-        
+
         elif cmd == "key":
-            key = parts[1].lower()
+            key = f_resolve_expression_internal(parts[1].lower())
             action = parts[2].lower() if len(parts) > 2 else "press"
             if action == "down":
                 pyautogui.keyDown(key)
@@ -99,26 +118,33 @@ def f_parse_internal(command):
                 pyautogui.keyUp(key)
             elif action == "press":
                 pyautogui.press(key)
-        
+
         elif cmd == "hotkey":
-            combo = [key.lower() for key in parts[1:]]
+            combo = resolve_args(parts[1:])
             pyautogui.hotkey(*combo)
-        
+
         elif cmd == "wait":
-            duration = float(f_resolve_expression_internal(parts[1]))
-            unit = parts[2].lower() if len(parts) > 2 else "ms"
+            if len(parts) > 2 and parts[-1].lower() in {"ms", "s", "sec", "seconds", "milliseconds"}:
+                duration_expr = " ".join(parts[1:-1])
+                unit = parts[-1].lower()
+            else:
+                duration_expr = " ".join(parts[1:])
+                unit = "ms"
+
+            duration = float(f_evaluate_expression_internal(duration_expr))
+
             if unit.startswith("ms"):
                 time.sleep(duration / 1000)
             elif unit.startswith("s"):
                 time.sleep(duration)
-        
+
         elif cmd == "write":
-            text = f_resolve_expression_internal(command[6:].strip())
+            text = f_resolve_expression_internal(f_parse_wrapped_string_internal(" ".join(parts[1:])))
             pyautogui.write(text)
-        
+
         elif cmd == "mb":
             button_map = {1: "left", 2: "right", 3: "middle", 4: "x1", 5: "x2"}
-            button = button_map.get(int(parts[1]), "left")
+            button = button_map.get(int(f_resolve_expression_internal(parts[1])), "left")
             action = parts[2].lower() if len(parts) > 2 else "press"
             if action == "down":
                 pyautogui.mouseDown(button=button)
@@ -126,70 +152,55 @@ def f_parse_internal(command):
                 pyautogui.mouseUp(button=button)
             elif action == "press":
                 pyautogui.click(button=button)
-        
+
         elif cmd == "scroll":
-            amount = int(f_resolve_expression_internal(parts[1]))
+            amount = int(f_evaluate_expression_internal(parts[1]))
             pyautogui.scroll(amount)
 
         elif cmd == "clip":
             subcmd = parts[1].lower()
             if subcmd == "copy":
-                text = f_resolve_expression_internal(" ".join(parts[2:]))
+                text = f_resolve_expression_internal(f_parse_wrapped_string_internal(" ".join(parts[2:])))
                 pyperclip.copy(text)
-            elif subcmd == "paste-m":
-                pyautogui.write(pyperclip.paste())
             elif subcmd == "paste":
-                pyautogui.hotkey('ctrl', 'v')
+                pyautogui.write(pyperclip.paste())
             elif subcmd == "clear":
                 pyperclip.copy("")
             else:
                 raise ValueError(f"Invalid clip action: {subcmd}")
-        
-        if cmd == "set":
+
+        elif cmd == "set":
             var = parts[1]
-            match = re.match(r"join\((.*?)\)", " ".join(parts[2:]))
-            if match:
-                args = [arg.strip() for arg in match.group(1).split(",")]
-                value = join_variables(*args)
+            if parts[2].startswith("join(") and parts[2].endswith(")"):
+                join_content = command[command.index("join(") + 5 : command.rindex(")")]
+                args = [arg.strip() for arg in join_content.split(",")]
+                value = f_join_variables_internal(*args)
             else:
                 value = f_resolve_expression_internal(" ".join(parts[2:]))
-            set_variable(var, value)
+            f_set_variable_internal(var, value)
 
         elif cmd == "del":
             var = parts[1]
             if var.startswith("~") and var.endswith("~"):
-                env_var = var[1:-1]
-                os.environ.pop(env_var, None)
+                os.environ.pop(var[1:-1], None)
             elif var.startswith("+") and var.endswith("+"):
-                env_var = var[1:-1]
-                os.system(f"setx {env_var} ''")
+                os.system(f"setx {var[1:-1]} ''")
             else:
                 variables.pop(var, None)
-        
-        elif cmd == "write":
-            if parts[1].startswith("user") or parts[1].startswith("sys"):
-                scope, env_var = parts[1], parts[2]
-                value = f_resolve_expression_internal(" ".join(parts[3:]))
-                if scope == "user":
-                    os.environ[env_var] = value
-                elif scope == "sys":
-                    os.system(f"setx {env_var} {value}")
-        
-        elif cmd == "continue":
-            keys = " ".join(parts[1:])
-            wait_for_keys(keys)
 
-        
+        elif cmd == "continue":
+            keys = resolve_args(parts[1:])
+            f_wait_for_keys_internal(" ".join(keys))
+
         elif cmd == "log":
-            message = f_resolve_expression_internal(" ".join(parts[1:]))
+            message = f_resolve_expression_internal(f_parse_wrapped_string_internal(" ".join(parts[1:])))
             print(message)
 
-        
     except Exception as e:
         print(f"Error processing command: {command}")
         print(f"Exception: {e}")
 
-def parse_config_options(script):
+def f_parse_config_options_internal(script):
     config = {
         "DisableAdminVarWarning": False,
         "FuncSplit": ";",
@@ -219,7 +230,7 @@ def macro(execstr, echo_errors=True):
             print("Input cannot be None")
             return
 
-        config, cleaned_script = parse_config_options(execstr)
+        config, cleaned_script = f_parse_config_options_internal(execstr)
 
         if not config["DisableAdminVarWarning"]:
             sys_var_pattern = r"set\s+\+([^\+]+)\+\s+"

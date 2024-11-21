@@ -1,0 +1,52 @@
+{
+  "name": "PyMacro Theme",
+  "type": "dark",
+  "colors": {
+    "editor.foreground": "#FFFFFF",
+    "editor.background": "#1E1E1E"
+  },
+  "tokenColors": [
+    {
+      "scope": "constant.language.word1.pymacro",
+      "settings": {
+        "foreground": "#569CD6"
+      }
+    },
+    {
+      "scope": "constant.language.word2.pymacro",
+      "settings": {
+        "foreground": "#DCDCAA"
+      }
+    },
+    {
+      "scope": "constant.language.word3.pymacro",
+      "settings": {
+        "foreground": "#C586C0"
+      }
+    },
+    {
+      "scope": "constant.language.word4.pymacro",
+      "settings": {
+        "foreground": "#9CDCFE"
+      }
+    },
+    {
+      "scope": "string.quoted.double.pymacro",
+      "settings": {
+        "foreground": "#CE9178"
+      }
+    },
+    {
+      "scope": "variable.parameter.pymacro",
+      "settings": {
+        "foreground": "#4EC9B0"
+      }
+    },
+    {
+      "scope": "comment.line.pymacro",
+      "settings": {
+        "foreground": "#6A9955"
+      }
+    }
+  ]
+}

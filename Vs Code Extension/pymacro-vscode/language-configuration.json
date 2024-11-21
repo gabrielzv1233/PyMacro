@@ -1,0 +1,84 @@
+{
+  "name": "PyMacro",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#1E1E1E",
+    "editor.foreground": "#D4D4D4"
+  },
+  "tokenColors": [
+    {
+      "scope": "keyword.control.config.pymacro",
+      "settings": {
+        "foreground": "#569CD6", // Blue for configurations
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "scope": "keyword.operator.assignment.pymacro",
+      "settings": {
+        "foreground": "#DCDCAA" // Yellow for assignment operators
+      }
+    },
+    {
+      "scope": "support.function.command.pymacro",
+      "settings": {
+        "foreground": "#C586C0" // Purple for commands
+      }
+    },
+    {
+      "scope": "entity.name.argument.pymacro",
+      "settings": {
+        "foreground": "#D7BA7D" // Light yellow for arguments
+      }
+    },
+    {
+      "scope": "keyword.argument.unit.pymacro",
+      "settings": {
+        "foreground": "#FFD700" // Gold for units like 'ms' or 's'
+      }
+    },
+    {
+      "scope": "string.quoted.join.pymacro",
+      "settings": {
+        "foreground": "#4EC9B0" // Teal for strings in join
+      }
+    },
+    {
+      "scope": "variable.argument.join.pymacro",
+      "settings": {
+        "foreground": "#9CDCFE" // Light blue for variables in join
+      }
+    },
+    {
+      "scope": "string.quoted.double.pymacro, string.quoted.single.pymacro",
+      "settings": {
+        "foreground": "#CE9178" // Orange for general strings
+      }
+    },
+    {
+      "scope": "constant.character.escape.pymacro",
+      "settings": {
+        "foreground": "#D7BA7D" // Same as arguments for escape sequences
+      }
+    },
+    {
+      "scope": "variable.parameter.pymacro",
+      "settings": {
+        "foreground": "#4EC9B0" // Teal for variables
+      }
+    },
+    {
+      "scope": "variable.special.clipboard.pymacro",
+      "settings": {
+        "foreground": "#9CDCFE" // Light blue for clipboard
+      }
+    },
+    {
+      "scope": "comment.line.double-slash.pymacro",
+      "settings": {
+        "foreground": "#6A9955", // Green for comments
+        "fontStyle": "italic"
+      }
+    }
+  ]
+}
