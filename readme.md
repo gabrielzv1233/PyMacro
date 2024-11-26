@@ -290,7 +290,7 @@ log {message};
 
 set text1 "Hello, Macro World!"
 set text2 "Powered by PyMacro."
-set combinedText "${text1}${text2}"
+set combinedText "${text1} ${text2}"
 
 // Simulate opening Notepad and typing text
 hotkey win r
