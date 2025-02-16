@@ -295,10 +295,11 @@ set combinedText "${text1} ${text2}"
 // Simulate opening Notepad and typing text
 hotkey win r
 wait 500 ms
-write notepad
+write "C:\Windows\notepad.exe"
 key enter
 wait 1 s
 write ${combinedText}
+wait 500 ms
 key enter
 write "Goodbye!"
 ```
